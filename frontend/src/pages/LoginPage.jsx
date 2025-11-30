@@ -16,8 +16,14 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            await login({ email, password });
-            navigate('/dashboard');
+            const data = await login({ email, password });
+            if (data.user.role === 'candidate') {
+                navigate('/candidate/dashboard');
+            } else if (data.user.role === 'recruiter') {
+                navigate('/recruiter/dashboard');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
         } finally {
@@ -27,9 +33,9 @@ const LoginPage = () => {
 
     return (
         <div style={styles.container}>
-            <div style={styles.card}>
+            <div style={styles.card} className="card fade-in">
                 <h1 style={styles.title}>Welcome Back</h1>
-                <p style={styles.subtitle}>Login to your account</p>
+                <p style={styles.subtitle}>Sign in to your account</p>
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -41,7 +47,6 @@ const LoginPage = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            style={styles.input}
                             placeholder="your@email.com"
                         />
                     </div>
@@ -53,13 +58,12 @@ const LoginPage = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            style={styles.input}
                             placeholder="••••••••"
                         />
                     </div>
 
-                    <button type="submit" disabled={loading} style={styles.button}>
-                        {loading ? 'Logging in...' : 'Login'}
+                    <button type="submit" disabled={loading} className="btn-primary" style={styles.button}>
+                        {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
 
@@ -80,36 +84,33 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f5f5f5',
         padding: '2rem',
     },
     card: {
-        backgroundColor: 'white',
-        borderRadius: '10px',
-        padding: '3rem',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        maxWidth: '450px',
         width: '100%',
+        maxWidth: '450px',
+        padding: '3rem',
     },
     title: {
         fontSize: '2rem',
-        fontWeight: 'bold',
-        color: '#1a1a2e',
+        fontWeight: '700',
+        color: 'var(--text-primary)',
         marginBottom: '0.5rem',
         textAlign: 'center',
     },
     subtitle: {
-        color: '#666',
+        color: 'var(--text-secondary)',
         textAlign: 'center',
         marginBottom: '2rem',
     },
     error: {
-        backgroundColor: '#ffebee',
-        color: '#c62828',
+        background: 'rgba(239, 68, 68, 0.1)',
+        border: '1px solid var(--accent-error)',
+        color: 'var(--accent-error)',
         padding: '1rem',
-        borderRadius: '5px',
-        marginBottom: '1rem',
-        fontSize: '0.9rem',
+        borderRadius: '8px',
+        marginBottom: '1.5rem',
+        textAlign: 'center',
     },
     form: {
         display: 'flex',
@@ -122,37 +123,23 @@ const styles = {
         gap: '0.5rem',
     },
     label: {
-        fontSize: '0.9rem',
+        fontSize: '0.95rem',
         fontWeight: '600',
-        color: '#333',
-    },
-    input: {
-        padding: '0.8rem',
-        borderRadius: '5px',
-        border: '1px solid #ddd',
-        fontSize: '1rem',
-        transition: 'border-color 0.3s',
+        color: 'var(--text-primary)',
     },
     button: {
-        backgroundColor: '#1976d2',
-        color: 'white',
-        padding: '1rem',
-        borderRadius: '5px',
-        border: 'none',
-        fontSize: '1rem',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        transition: 'background-color 0.3s',
+        width: '100%',
+        marginTop: '1rem',
     },
     footer: {
         textAlign: 'center',
         marginTop: '2rem',
-        color: '#666',
+        color: 'var(--text-secondary)',
     },
     link: {
-        color: '#1976d2',
+        color: 'var(--accent-primary)',
         textDecoration: 'none',
-        fontWeight: 'bold',
+        fontWeight: '600',
     },
 };
 

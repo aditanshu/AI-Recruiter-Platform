@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authService } from '../services/authService';
+import apiClient from '../services/apiClient';
 
 const AuthContext = createContext(null);
 
@@ -8,12 +9,27 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user is logged in on mount
-        const storedUser = authService.getStoredUser();
-        if (storedUser) {
-            setUser(storedUser);
-        }
-        setLoading(false);
+        // Check if user is logged in on mount and validate token
+        const initAuth = async () => {
+            const storedUser = authService.getStoredUser();
+            const token = localStorage.getItem('access_token');
+
+            if (storedUser && token) {
+                try {
+                    // Validate token by fetching current user
+                    const response = await apiClient.get('/auth/me');
+                    setUser(response.data);
+                } catch (error) {
+                    // Token is invalid or expired, clear storage
+                    console.error('Token validation failed:', error);
+                    authService.logout();
+                    setUser(null);
+                }
+            }
+            setLoading(false);
+        };
+
+        initAuth();
     }, []);
 
     const signup = async (userData) => {
@@ -41,11 +57,17 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (updatedUser) => {
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+    };
+
     const value = {
         user,
         signup,
         login,
         logout,
+        updateUser,
         isAuthenticated: !!user,
         isCandidate: user?.role === 'candidate',
         isRecruiter: user?.role === 'recruiter',

@@ -9,7 +9,7 @@ const Navbar = () => {
         <nav style={styles.nav}>
             <div style={styles.container}>
                 <Link to="/" style={styles.logo}>
-                    🤖 AI Recruiter
+                    ⚡ AI Recruiter
                 </Link>
 
                 <div style={styles.menu}>
@@ -21,7 +21,7 @@ const Navbar = () => {
                             <Link to="/login" style={styles.link}>
                                 Login
                             </Link>
-                            <Link to="/signup" style={styles.button}>
+                            <Link to="/signup" style={styles.button} className="btn-primary">
                                 Sign Up
                             </Link>
                         </>
@@ -32,33 +32,31 @@ const Navbar = () => {
                                     <Link to="/jobs" style={styles.link}>
                                         Jobs
                                     </Link>
-                                    <Link to="/dashboard" style={styles.link}>
-                                        My Applications
+                                    <Link to="/candidate/dashboard" style={styles.link}>
+                                        Dashboard
                                     </Link>
-                                    <Link to="/profile" style={styles.link}>
+                                    <Link to="/candidate/profile" style={styles.link}>
                                         Profile
                                     </Link>
                                 </>
                             )}
                             {isRecruiter && (
                                 <>
-                                    <Link to="/dashboard" style={styles.link}>
+                                    <Link to="/recruiter/dashboard" style={styles.link}>
                                         Dashboard
                                     </Link>
-                                    <Link to="/jobs/new" style={styles.link}>
-                                        Post Job
+                                    <Link to="/recruiter/jobs" style={styles.link}>
+                                        My Jobs
                                     </Link>
-                                    <Link to="/company" style={styles.link}>
+                                    <Link to="/recruiter/company" style={styles.link}>
                                         Company
                                     </Link>
                                 </>
                             )}
-                            <div style={styles.userInfo}>
-                                <span style={styles.userName}>{user?.full_name}</span>
-                                <button onClick={logout} style={styles.logoutBtn}>
-                                    Logout
-                                </button>
-                            </div>
+                            <span style={styles.userName}>{user?.full_name}</span>
+                            <button onClick={logout} style={styles.logoutBtn}>
+                                Logout
+                            </button>
                         </>
                     )}
                 </div>
@@ -69,12 +67,15 @@ const Navbar = () => {
 
 const styles = {
     nav: {
-        backgroundColor: '#1a1a2e',
+        background: 'var(--bg-card)',
+        borderBottom: '1px solid var(--border-color)',
         padding: '1rem 0',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
     },
     container: {
-        maxWidth: '1200px',
+        maxWidth: '1400px',
         margin: '0 auto',
         padding: '0 2rem',
         display: 'flex',
@@ -83,47 +84,42 @@ const styles = {
     },
     logo: {
         fontSize: '1.5rem',
-        fontWeight: 'bold',
-        color: '#fff',
+        fontWeight: '700',
+        color: 'var(--text-primary)',
         textDecoration: 'none',
     },
     menu: {
         display: 'flex',
-        gap: '1.5rem',
+        gap: '2rem',
         alignItems: 'center',
     },
     link: {
-        color: '#e0e0e0',
+        color: 'var(--text-secondary)',
         textDecoration: 'none',
         fontSize: '1rem',
+        fontWeight: '500',
         transition: 'color 0.3s',
     },
     button: {
-        backgroundColor: '#4CAF50',
-        color: 'white',
-        padding: '0.5rem 1.5rem',
-        borderRadius: '5px',
         textDecoration: 'none',
         fontSize: '1rem',
-        transition: 'background-color 0.3s',
-    },
-    userInfo: {
-        display: 'flex',
-        gap: '1rem',
-        alignItems: 'center',
+        padding: '0.6rem 1.5rem',
     },
     userName: {
-        color: '#e0e0e0',
-        fontSize: '0.9rem',
+        color: 'var(--text-primary)',
+        fontSize: '0.95rem',
+        fontWeight: '600',
     },
     logoutBtn: {
-        backgroundColor: '#f44336',
-        color: 'white',
-        border: 'none',
-        padding: '0.5rem 1rem',
-        borderRadius: '5px',
+        background: 'var(--bg-tertiary)',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border-color)',
+        padding: '0.6rem 1.2rem',
+        borderRadius: '8px',
         cursor: 'pointer',
         fontSize: '0.9rem',
+        fontWeight: '600',
+        transition: 'all 0.3s',
     },
 };
 

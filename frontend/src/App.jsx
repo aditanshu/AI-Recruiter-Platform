@@ -6,6 +6,14 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import JobListPage from './pages/JobListPage';
 import CandidateDashboard from './pages/CandidateDashboard';
+import RecruiterDashboard from './pages/RecruiterDashboard';
+import CandidateProfile from './pages/CandidateProfile';
+import CompanyProfile from './pages/CompanyProfile';
+import JobForm from './pages/JobForm';
+import RecruiterJobs from './pages/RecruiterJobs';
+import JobApplicants from './pages/JobApplicants';
+import JobDetailPage from './pages/JobDetailPage';
+import LandingPage from './pages/LandingPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -20,62 +28,33 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     }
 
     if (requiredRole && user?.role !== requiredRole) {
-        return <Navigate to="/dashboard" replace />;
+        // Redirect to appropriate dashboard based on user's actual role
+        if (user?.role === 'candidate') {
+            return <Navigate to="/candidate/dashboard" replace />;
+        } else if (user?.role === 'recruiter') {
+            return <Navigate to="/recruiter/dashboard" replace />;
+        }
+        return <Navigate to="/" replace />;
     }
 
     return children;
 };
 
-// Landing Page
-const LandingPage = () => {
-    const { isAuthenticated } = useAuth();
+// Dashboard Router - redirects to role-specific dashboard
+const DashboardRouter = () => {
+    const { user, loading } = useAuth();
 
-    if (isAuthenticated) {
-        return <Navigate to="/dashboard" replace />;
+    if (loading) {
+        return <div style={styles.loading}>Loading...</div>;
     }
 
-    return (
-        <div style={styles.landing}>
-            <div style={styles.hero}>
-                <h1 style={styles.heroTitle}>AI-Powered Hiring Platform</h1>
-                <p style={styles.heroSubtitle}>
-                    Connect talent with opportunities using intelligent matching
-                </p>
-                <div style={styles.heroButtons}>
-                    <a href="/signup" style={styles.primaryButton}>
-                        Get Started
-                    </a>
-                    <a href="/jobs" style={styles.secondaryButton}>
-                        Browse Jobs
-                    </a>
-                </div>
-            </div>
+    if (user?.role === 'candidate') {
+        return <Navigate to="/candidate/dashboard" replace />;
+    } else if (user?.role === 'recruiter') {
+        return <Navigate to="/recruiter/dashboard" replace />;
+    }
 
-            <div style={styles.features}>
-                <div style={styles.feature}>
-                    <div style={styles.featureIcon}>🤖</div>
-                    <h3 style={styles.featureTitle}>AI Matching</h3>
-                    <p style={styles.featureText}>
-                        Smart algorithms match candidates with perfect job opportunities
-                    </p>
-                </div>
-                <div style={styles.feature}>
-                    <div style={styles.featureIcon}>📄</div>
-                    <h3 style={styles.featureTitle}>Resume Parsing</h3>
-                    <p style={styles.featureText}>
-                        Automatic skill extraction and profile building from your resume
-                    </p>
-                </div>
-                <div style={styles.feature}>
-                    <div style={styles.featureIcon}>⚡</div>
-                    <h3 style={styles.featureTitle}>Fast Hiring</h3>
-                    <p style={styles.featureText}>
-                        Streamlined process from application to interview scheduling
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
+    return <Navigate to="/" replace />;
 };
 
 function App() {
@@ -89,14 +68,86 @@ function App() {
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/signup" element={<SignupPage />} />
                         <Route path="/jobs" element={<JobListPage />} />
+                        <Route path="/jobs/:id" element={<JobDetailPage />} />
+
+                        {/* Generic dashboard route - redirects based on role */}
                         <Route
                             path="/dashboard"
                             element={
                                 <ProtectedRoute>
+                                    <DashboardRouter />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* Candidate Routes */}
+                        <Route
+                            path="/candidate/dashboard"
+                            element={
+                                <ProtectedRoute requiredRole="candidate">
                                     <CandidateDashboard />
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/candidate/profile"
+                            element={
+                                <ProtectedRoute requiredRole="candidate">
+                                    <CandidateProfile />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* Recruiter Routes */}
+                        <Route
+                            path="/recruiter/dashboard"
+                            element={
+                                <ProtectedRoute requiredRole="recruiter">
+                                    <RecruiterDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/recruiter/company"
+                            element={
+                                <ProtectedRoute requiredRole="recruiter">
+                                    <CompanyProfile />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/recruiter/jobs"
+                            element={
+                                <ProtectedRoute requiredRole="recruiter">
+                                    <RecruiterJobs />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/recruiter/jobs/new"
+                            element={
+                                <ProtectedRoute requiredRole="recruiter">
+                                    <JobForm />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/recruiter/jobs/:id/edit"
+                            element={
+                                <ProtectedRoute requiredRole="recruiter">
+                                    <JobForm />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/recruiter/jobs/:jobId/applicants"
+                            element={
+                                <ProtectedRoute requiredRole="recruiter">
+                                    <JobApplicants />
+                                </ProtectedRoute>
+                            }
+                        />
+
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </div>

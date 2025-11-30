@@ -3,7 +3,11 @@ import apiClient from './apiClient';
 export const jobsService = {
     // Get all jobs with filters
     getJobs: async (params = {}) => {
-        const response = await apiClient.get('/jobs', { params });
+        // Filter out empty string parameters to avoid validation errors
+        const cleanParams = Object.fromEntries(
+            Object.entries(params).filter(([_, value]) => value !== '' && value != null)
+        );
+        const response = await apiClient.get('/jobs', { params: cleanParams });
         return response.data;
     },
 

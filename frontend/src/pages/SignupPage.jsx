@@ -27,8 +27,14 @@ const SignupPage = () => {
         setLoading(true);
 
         try {
-            await signup(formData);
-            navigate('/dashboard');
+            const data = await signup(formData);
+            if (data.user.role === 'candidate') {
+                navigate('/candidate/dashboard');
+            } else if (data.user.role === 'recruiter') {
+                navigate('/recruiter/dashboard');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.detail || 'Signup failed. Please try again.');
         } finally {
@@ -38,7 +44,7 @@ const SignupPage = () => {
 
     return (
         <div style={styles.container}>
-            <div style={styles.card}>
+            <div style={styles.card} className="card fade-in">
                 <h1 style={styles.title}>Create Account</h1>
                 <p style={styles.subtitle}>Join AI Recruiter Platform</p>
 
@@ -53,7 +59,6 @@ const SignupPage = () => {
                             value={formData.full_name}
                             onChange={handleChange}
                             required
-                            style={styles.input}
                             placeholder="John Doe"
                         />
                     </div>
@@ -66,7 +71,6 @@ const SignupPage = () => {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            style={styles.input}
                             placeholder="your@email.com"
                         />
                     </div>
@@ -80,7 +84,6 @@ const SignupPage = () => {
                             onChange={handleChange}
                             required
                             minLength={8}
-                            style={styles.input}
                             placeholder="••••••••"
                         />
                         <small style={styles.hint}>Minimum 8 characters</small>
@@ -88,8 +91,11 @@ const SignupPage = () => {
 
                     <div style={styles.formGroup}>
                         <label style={styles.label}>I am a...</label>
-                        <div style={styles.radioGroup}>
-                            <label style={styles.radioLabel}>
+                        <div style={styles.roleGroup}>
+                            <label style={{
+                                ...styles.roleOption,
+                                ...(formData.role === 'candidate' ? styles.roleActive : {})
+                            }}>
                                 <input
                                     type="radio"
                                     name="role"
@@ -98,9 +104,12 @@ const SignupPage = () => {
                                     onChange={handleChange}
                                     style={styles.radio}
                                 />
-                                <span>Candidate (Looking for jobs)</span>
+                                <span>Candidate</span>
                             </label>
-                            <label style={styles.radioLabel}>
+                            <label style={{
+                                ...styles.roleOption,
+                                ...(formData.role === 'recruiter' ? styles.roleActive : {})
+                            }}>
                                 <input
                                     type="radio"
                                     name="role"
@@ -109,13 +118,13 @@ const SignupPage = () => {
                                     onChange={handleChange}
                                     style={styles.radio}
                                 />
-                                <span>Recruiter (Hiring talent)</span>
+                                <span>Recruiter</span>
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" disabled={loading} style={styles.button}>
-                        {loading ? 'Creating account...' : 'Sign Up'}
+                    <button type="submit" disabled={loading} className="btn-primary" style={styles.button}>
+                        {loading ? 'Creating account...' : 'Create Account'}
                     </button>
                 </form>
 
@@ -136,36 +145,33 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f5f5f5',
         padding: '2rem',
     },
     card: {
-        backgroundColor: 'white',
-        borderRadius: '10px',
-        padding: '3rem',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        maxWidth: '500px',
         width: '100%',
+        maxWidth: '500px',
+        padding: '3rem',
     },
     title: {
         fontSize: '2rem',
-        fontWeight: 'bold',
-        color: '#1a1a2e',
+        fontWeight: '700',
+        color: 'var(--text-primary)',
         marginBottom: '0.5rem',
         textAlign: 'center',
     },
     subtitle: {
-        color: '#666',
+        color: 'var(--text-secondary)',
         textAlign: 'center',
         marginBottom: '2rem',
     },
     error: {
-        backgroundColor: '#ffebee',
-        color: '#c62828',
+        background: 'rgba(239, 68, 68, 0.1)',
+        border: '1px solid var(--accent-error)',
+        color: 'var(--accent-error)',
         padding: '1rem',
-        borderRadius: '5px',
-        marginBottom: '1rem',
-        fontSize: '0.9rem',
+        borderRadius: '8px',
+        marginBottom: '1.5rem',
+        textAlign: 'center',
     },
     form: {
         display: 'flex',
@@ -178,53 +184,49 @@ const styles = {
         gap: '0.5rem',
     },
     label: {
-        fontSize: '0.9rem',
+        fontSize: '0.95rem',
         fontWeight: '600',
-        color: '#333',
-    },
-    input: {
-        padding: '0.8rem',
-        borderRadius: '5px',
-        border: '1px solid #ddd',
-        fontSize: '1rem',
+        color: 'var(--text-primary)',
     },
     hint: {
-        fontSize: '0.8rem',
-        color: '#999',
+        fontSize: '0.85rem',
+        color: 'var(--text-muted)',
     },
-    radioGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.8rem',
+    roleGroup: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '1rem',
     },
-    radioLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
+    roleOption: {
+        padding: '1rem',
+        border: '2px solid var(--border-color)',
+        borderRadius: '8px',
         cursor: 'pointer',
+        transition: 'all 0.3s',
+        textAlign: 'center',
+        fontWeight: '600',
+        color: 'var(--text-primary)',
+    },
+    roleActive: {
+        borderColor: 'var(--accent-primary)',
+        background: 'rgba(59, 130, 246, 0.1)',
     },
     radio: {
-        cursor: 'pointer',
+        display: 'none',
     },
     button: {
-        backgroundColor: '#4CAF50',
-        color: 'white',
-        padding: '1rem',
-        borderRadius: '5px',
-        border: 'none',
-        fontSize: '1rem',
-        fontWeight: 'bold',
-        cursor: 'pointer',
+        width: '100%',
+        marginTop: '1rem',
     },
     footer: {
         textAlign: 'center',
         marginTop: '2rem',
-        color: '#666',
+        color: 'var(--text-secondary)',
     },
     link: {
-        color: '#1976d2',
+        color: 'var(--accent-primary)',
         textDecoration: 'none',
-        fontWeight: 'bold',
+        fontWeight: '600',
     },
 };
 

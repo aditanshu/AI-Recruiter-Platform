@@ -40,6 +40,30 @@ def get_companies(
     return companies
 
 
+@router.get("/my", response_model=CompanyResponse)
+def get_my_company(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("recruiter"))
+):
+    """
+    Get the company created by the current recruiter.
+    
+    Returns the first company created by the authenticated recruiter.
+    Returns 404 if no company exists.
+    """
+    company = db.query(Company).filter(
+        Company.created_by == current_user.id
+    ).first()
+    
+    if not company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No company found. Please create a company profile first."
+        )
+    
+    return company
+
+
 @router.get("/{company_id}", response_model=CompanyResponse)
 def get_company(company_id: UUID, db: Session = Depends(get_db)):
     """

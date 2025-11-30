@@ -70,6 +70,32 @@ def get_jobs(
     return jobs
 
 
+@router.get("/my", response_model=List[JobResponse])
+def get_my_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("recruiter"))
+):
+    """
+    Get all jobs posted by the current recruiter.
+    
+    Returns all jobs (draft, published, closed) posted by the authenticated recruiter.
+    """
+    jobs = db.query(Job).filter(
+        Job.posted_by == current_user.id
+    ).order_by(Job.created_at.desc()).all()
+    
+    # Load company relationship and count applicants
+    for job in jobs:
+        job.company  # Trigger lazy loading
+        # Count applicants for this job
+        from app.models import Application
+        job.applicant_count = db.query(Application).filter(
+            Application.job_id == job.id
+        ).count()
+    
+    return jobs
+
+
 @router.get("/{job_id}", response_model=JobResponse)
 def get_job(job_id: UUID, db: Session = Depends(get_db)):
     """

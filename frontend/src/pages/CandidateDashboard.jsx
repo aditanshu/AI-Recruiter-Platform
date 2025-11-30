@@ -19,8 +19,14 @@ const CandidateDashboard = () => {
             setLoading(true);
             const data = await applicationsService.getMyApplications();
             setApplications(data);
+            setError('');
         } catch (err) {
-            setError('Failed to load applications.');
+            // Don't show error if it's just empty (404 is expected for new users)
+            if (err.response?.status === 404) {
+                setApplications([]);
+            } else {
+                setError('Failed to load applications.');
+            }
         } finally {
             setLoading(false);
         }
@@ -64,6 +70,19 @@ const CandidateDashboard = () => {
                     </div>
                     <div style={styles.statLabel}>Interviews</div>
                 </div>
+            </div>
+
+            <div style={styles.quickActions}>
+                <Link to="/candidate/profile" style={styles.actionCard}>
+                    <div style={styles.actionIcon}>👤</div>
+                    <h3 style={styles.actionTitle}>My Profile</h3>
+                    <p style={styles.actionText}>Update your information</p>
+                </Link>
+                <Link to="/jobs" style={styles.actionCard}>
+                    <div style={styles.actionIcon}>🔍</div>
+                    <h3 style={styles.actionTitle}>Browse Jobs</h3>
+                    <p style={styles.actionText}>Find your next opportunity</p>
+                </Link>
             </div>
 
             {error && <div style={styles.error}>{error}</div>}
@@ -156,6 +175,36 @@ const styles = {
     statLabel: {
         fontSize: '0.9rem',
         color: '#666',
+    },
+    quickActions: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '1.5rem',
+        marginBottom: '2rem',
+    },
+    actionCard: {
+        backgroundColor: 'white',
+        padding: '1.5rem',
+        borderRadius: '10px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        textAlign: 'center',
+        textDecoration: 'none',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        cursor: 'pointer',
+    },
+    actionIcon: {
+        fontSize: '2.5rem',
+        marginBottom: '0.5rem',
+    },
+    actionTitle: {
+        fontSize: '1.1rem',
+        fontWeight: 'bold',
+        color: '#1a1a2e',
+        marginBottom: '0.3rem',
+    },
+    actionText: {
+        color: '#666',
+        fontSize: '0.85rem',
     },
     error: {
         backgroundColor: '#ffebee',
